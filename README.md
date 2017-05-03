@@ -15,7 +15,8 @@ The goals / steps of this project are the following:
 * Estimate a bounding box for vehicles detected.
 
 [//]: # (Image References)
-[image1]: ./examples/car_not_car.png
+[car_sample]: ./output_images/car.png
+[notcar_sample]: ./output_images/notcar.png
 [image2]: ./examples/HOG_example.jpg
 [image3]: ./examples/sliding_windows.jpg
 [image4]: ./examples/sliding_window.jpg
@@ -51,9 +52,12 @@ The code for this step is contained in the ```single_img_features``` function (t
 
 I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
 
-TODO two images here
+![car_sample][car_sample]
+*Sample from class "vehicle"*
 
-![alt text][image1]
+![notcar_sample][notcar_sample]
+*Sample from class "non-vehicle"*
+
 
 During the course I explored different color spaces and different hog parameters. I came up with "HLS" as color space, (16, 16) for spatial size and 16 histogram bins. I used all hog channels. Later in the project I realized that "YCrCb" yielded better results so that's used for the final video. In the "HLS" color space I had a significantly higher amount of false positives.
 
