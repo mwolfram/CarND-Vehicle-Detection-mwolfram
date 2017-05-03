@@ -25,6 +25,11 @@ The goals / steps of this project are the following:
 [image7]: ./examples/output_bboxes.png
 [video1]: ./project_video.mp4
 
+[car_HLS_hog]: ./output_images/car_HLS_hog.png
+[car_YCrCb_hog]: ./output_images/car_YCrCb_hog.png
+[notcar_HLS_hog]: ./output_images/notcar_HLS_hog.png
+[notcar_YCrCb_hog]: ./output_images/notcar_YCrCb_hog.png
+
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
@@ -41,8 +46,7 @@ The code from [Project 4 (Advanced Lane Lines)](https://github.com/mwolfram/CarN
 
 ### Configuration and RuntimeData
 
-I used two singletons to
-TODO describe both
+I used singletons for my Configuration and RuntimeData. The former holds configuration that I'd like to set globally and use it everywhere in the notebook and the latter stores data that has to be stored between images (for example if they come as frames from a video), so in our case the heatmap. I also used this construct for caching parts of the calculation between individual runs (for example optimizing the heatmap parameters without having to rerun hog feature extraction and sliding window)
 
 ### Histogram of Oriented Gradients (HOG)
 
@@ -79,33 +83,45 @@ self.HIST_RANGE = (0, 1)
 self.Y_START_STOP = [400, 670]
 ```
 
+![car_HLS_hog][car_HLS_hog]
+*HOG Features of car in HLS color space*
 
-TODO sample hog features
+![car_YCrCb_hog][car_YCrCb_hog]
+*HOG Features of car in YCrCb color space*
 
-![alt text][image2]
+![notcar_HLS_hog][notcar_HLS_hog]
+*HOG Features of notcar in HLS color space*
+
+![notcar_YCrCb_hog][notcar_YCrCb_hog]
+*HOG Features of notcar in YCrCb color space*
 
 #### 2. Explain how you settled on your final choice of HOG parameters.
 
-TODO very short trial and error
+It was a short trial and error run during the course that soon yielded good results. I started off with the RGB color space and spatial size and hist bins both set to 32. By changing the color channel to HLS and spatial size and hist bins to 16, I immediately got a better accuracy rating. Later in the project I experimented with other color spaces (tried different settings and tested them on the whole pipeline). YCrCb turned out to significantly reduce the number of false positives. I used all 3 channels for hog extraction all the time.
 
 #### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
-TODO continue here -------------------------------------
-
-I trained a linear SVM using...
+I trained a linear SVM using the ```def train_classifier():``` function. It will read in a list of cars and notcars and extract features from these images. I always used a combination of spatial features, histogram features and hog features. The feature vector is then normalized, split into training and test sets and passed to the SVM.
 
 ### Sliding Window Search
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I decided to search random window positions at random scales all over the image and came up with this (ok just kidding I didn't actually ;):
+I used ```slide_window``` followed by ```search_windows``` in the beginning, with the default settings from the course and no change in the window size or step size. I soon started using ```find_cars``` instead, which will perform hog subsampling. So it will first extract the hog features for the whole image and then extract the features from windows that slide over the image. Here I set ```cells_per_step``` to 1 to get a more fine-grained detection.
 
-![alt text][image3]
+TODO image cell step 2
+TODO image cell step 1 (later ) , both in find_cars
 
 ####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
+TODO another scale?
+TODO opt: color space
+TODO opt:
+
+TODO fix this part, this aint true:
 Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
 
+TODO sample detection imgs
 ![alt text][image4]
 ---
 
@@ -114,6 +130,7 @@ Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spat
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
 Here's a [link to my video result](./project_video.mp4)
 
+TODO continue here
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
