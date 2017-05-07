@@ -3,8 +3,6 @@
 ## Writeup
 ---
 
-TODO changed scale to 1.0, less false positives. adjusted heatmap config, fasle positives none, but sometimes split detections (for short while)
-
 
 **Vehicle Detection Project**
 
@@ -20,20 +18,17 @@ The goals / steps of this project are the following:
 [//]: # (Image References)
 [car_sample]: ./output_images/car.png
 [notcar_sample]: ./output_images/notcar.png
-[image2]: ./examples/HOG_example.jpg
-[image3]: ./examples/sliding_windows.jpg
-[image4]: ./examples/sliding_window.jpg
-[image5]: ./examples/bboxes_and_heat.png
-[image6]: ./examples/labels_map.png
-[image7]: ./examples/output_bboxes.png
-
-[video_final]: ./project_video_final_out.mp4
-[video_debug]: ./project_video_debug_out.mp4
-
 [car_HLS_hog]: ./output_images/car_HLS_hog.png
 [car_YCrCb_hog]: ./output_images/car_YCrCb_hog.png
 [notcar_HLS_hog]: ./output_images/notcar_HLS_hog.png
 [notcar_YCrCb_hog]: ./output_images/notcar_YCrCb_hog.png
+
+[sliding_window]: ./output_images/sliding_window.png
+[find_cars_scale_1.5]: ./output_images/test1scale1.5.jpg
+[find_cars_scale_1.0]: ./output_images/test1scale1.0.jpg
+
+[video_final]: ./project_video_final_out.mp4
+[video_debug]: ./project_video_debug_out.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
@@ -112,22 +107,21 @@ I trained a linear SVM using the ```def train_classifier():``` function. It will
 
 #### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
-I used ```slide_window``` followed by ```search_windows``` in the beginning, with the default settings from the course and no change in the window size or step size. I soon started using ```find_cars``` instead, which will perform hog subsampling. So it will first extract the hog features for the whole image and then extract the features from windows that slide over the image. Here I set ```cells_per_step``` to 1 to get a more fine-grained detection.
+I used ```slide_window``` followed by ```search_windows``` in the beginning, with the default settings from the course and no change in the window size or step size. I soon started using ```find_cars``` instead, which will perform hog subsampling. So it will first extract the hog features for the whole image and then extract the features from windows that slide over the image. Here I set ```cells_per_step``` to 1 to get a more fine-grained detection. Also, I changed the scale setting to 1.0 later in the project. This resulted in a much longer runtime, but also reduced the number of false positives.
 
-TODO image cell step 2
-TODO image cell step 1 (later ) , both in find_cars
+#### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
+The following images show samples of the combination of ```slide_window``` and ```search_windows``` (6 test images), and two runs of ```find_cars``` (using HOG subsampling), with scale settings of 1.5 and 1.0. Notice how the false positives are reduced when using scale 1.0.
 
-TODO another scale?
-TODO opt: color space
-TODO opt:
+![sliding_window][sliding_window]
+*```slide_window``` followed by ```search_windows```*
 
-TODO fix this part, this aint true:
-Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
+![find_cars_scale_1.5][find_cars_scale_1.5]
+*Find cars scale 1.5*
 
-TODO sample detection imgs
-![alt text][image4]
+![find_cars_scale_1.0][find_cars_scale_1.0]
+*Find cars scale 1.0*
+
 ---
 
 ### Video Implementation
@@ -137,21 +131,24 @@ Here's a [link to my video result][video_final], and [here][video_debug] you can
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
-I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
+I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap (```add_heat```) and then thresholded that map to identify vehicle positions (```apply_threshold```). I also used a ```cooldown``` to reduce heatmap values over time.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.
 
 Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
 
-### Here are six frames and their corresponding heatmaps:
+### Here are ten frames and their corresponding heatmaps as well as their labels:
 
-![alt text][image5]
-
-### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
-![alt text][image6]
-
-### Here the resulting bounding boxes are drawn onto the last frame in the series:
-![alt text][image7]
-
-
+Frame with bounding boxes  |  Corresponding heatmap | Labels
+:-------------------------:|:-------------------------:|:-------:
+![](./output_images/img_0_processed.jpg)  |  ![](./output_images/img_0_heatmap.jpg) | ![](./output_images/img_0_labels.jpg)
+![](./output_images/img_1_processed.jpg)  |  ![](./output_images/img_1_heatmap.jpg) | ![](./output_images/img_1_labels.jpg)
+![](./output_images/img_2_processed.jpg)  |  ![](./output_images/img_2_heatmap.jpg) | ![](./output_images/img_2_labels.jpg)
+![](./output_images/img_3_processed.jpg)  |  ![](./output_images/img_3_heatmap.jpg) | ![](./output_images/img_3_labels.jpg)
+![](./output_images/img_4_processed.jpg)  |  ![](./output_images/img_4_heatmap.jpg) | ![](./output_images/img_4_labels.jpg)
+![](./output_images/img_5_processed.jpg)  |  ![](./output_images/img_5_heatmap.jpg) | ![](./output_images/img_5_labels.jpg)
+![](./output_images/img_6_processed.jpg)  |  ![](./output_images/img_6_heatmap.jpg) | ![](./output_images/img_6_labels.jpg)
+![](./output_images/img_7_processed.jpg)  |  ![](./output_images/img_7_heatmap.jpg) | ![](./output_images/img_7_labels.jpg)
+![](./output_images/img_8_processed.jpg)  |  ![](./output_images/img_8_heatmap.jpg) | ![](./output_images/img_8_labels.jpg)
+![](./output_images/img_9_processed.jpg)  |  ![](./output_images/img_9_heatmap.jpg) | ![](./output_images/img_9_labels.jpg)
 
 ---
 
@@ -159,6 +156,10 @@ Here's an example result showing the heatmap from a series of frames of video, t
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.
 
-TODO notes here: algo is slow, espec with scale 1
+I noticed that in many cases, the pipeline produced a lot of false positives around the center of the highway. Same goes for shadows. With the final settings I managed to reduce the number of false positives to a minimum, however this is partly due to a heatmap configuration that is adjusted for the project video. It might just as well fail under different circumstances, for example when the number of overlapping detections is less (as the heatmap is set to a rather low sensibility, fast cooldown and high threshold). Due to the "strict" heatmap settings, I occasionally get split detections (2 or three boxes per car, but only for a very short time)
+
+The biggest steps in achieving this result were using HOG subsampling, changing to YCrCb color space and reducing scale to 1.0. Especially the latter led to a significant decrease in false positives, but also to a very long algorithm runtime, which is one of the shortcomings of this solution.
+
+If I were going to pursue this project further, I'd first start working on the runtime. It would be interesting to try a deep learning approach, also on own videos, and use the current pipeline for labeling the recorded data. What's also missing, is tracking the detected cars over multiple frames, by finding the centroids of the labels, calculating their motion vectors and adjusting the positions where I'd expect to find the vehicles in the next frame. Currently, vehicles that move fast (relative to my viewpoint) would present a problem.
