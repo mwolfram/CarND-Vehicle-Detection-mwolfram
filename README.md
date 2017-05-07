@@ -3,6 +3,9 @@
 ## Writeup
 ---
 
+TODO changed scale to 1.0, less false positives. adjusted heatmap config, fasle positives none, but sometimes split detections (for short while)
+
+
 **Vehicle Detection Project**
 
 The goals / steps of this project are the following:
@@ -23,7 +26,9 @@ The goals / steps of this project are the following:
 [image5]: ./examples/bboxes_and_heat.png
 [image6]: ./examples/labels_map.png
 [image7]: ./examples/output_bboxes.png
-[video1]: ./project_video.mp4
+
+[video_final]: ./project_video_final_out.mp4
+[video_debug]: ./project_video_debug_out.mp4
 
 [car_HLS_hog]: ./output_images/car_HLS_hog.png
 [car_YCrCb_hog]: ./output_images/car_YCrCb_hog.png
@@ -128,9 +133,7 @@ TODO sample detection imgs
 ### Video Implementation
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
-Here's a [link to my video result](./project_video.mp4)
-
-TODO continue here
+Here's a [link to my video result][video_final], and [here][video_debug] you can see a video showing individual steps of the pipeline (from top left to bottom right: unfiltered sliding window detection result, heatmap, labels, final bounding boxes based on labels)
 
 #### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
@@ -157,3 +160,5 @@ Here's an example result showing the heatmap from a series of frames of video, t
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
 Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+
+TODO notes here: algo is slow, espec with scale 1
